@@ -1,0 +1,72 @@
+*{margin: 0;padding: 0;list-style: none;}
+
+/** 清除内外边距 **/
+body,li, button, input {
+  margin: 0;
+  padding: 0;
+}
+
+/** 设置默认字体 **/
+body,
+button, input {
+  font: 12px/1.5 tahoma, arial, \5b8b\4f53, sans-serif;
+}
+
+/** 重置列表元素 **/
+ul { list-style: none; }
+
+/** 重置文本格式元素 **/
+a { text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.nav-list {
+	display: flex;
+	text-align: center;
+	position: relative;
+	padding: 0 30px;
+	background-color: #b0e0e6;
+}
+
+.nav-list li {
+	flex: 1;
+	height: 50px;
+  	line-height: 50px;
+  	display: block;
+  	font-size: 12px;
+  	outline: none;
+  	overflow: hidden;
+  	cursor: pointer;
+  	background: transparent;
+}
+
+.nav-list li span {
+	position: relative;
+	top: 0;
+	display: block;
+	transition: all 0.22s ease;
+}
+.nav-list li .iconfont {
+	top: 0;
+	position: relative;
+	transition: all 0.22s ease;
+}
+
+.nav-list li:hover .iconfont,
+.nav-list li:hover span {
+  top: -50px;
+}
+#content {
+    padding: 10px 0;
+    background-color: #fff;
+}
+#msg {
+	word-break:break-all;
+	background-color: #b0e0e6;
+	font-size: 12px;
+	padding: 10px;
+}
+#qrcodeCanvas {
+	width: 150px;
+	height: 150px;
+	margin: 0 auto;
+}

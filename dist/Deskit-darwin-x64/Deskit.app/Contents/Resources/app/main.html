@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    	<title>桌面小伴侣，提升你的开发效率</title>
+    	<meta charset="utf-8">
+    	<link rel="stylesheet" href="static/iconfont.css">
+    	<link rel="stylesheet" href="static/style.css">
+  	</head>
+  	<body>
+  		<div id="container">
+	  		<!-- 导航 -->
+	  		<div class="nav">
+				<ul class="nav-list">
+					<li id="qrcode">
+				 		<i class="iconfont icon-erweima"></i>
+			     	<span>二维码</span>
+					</li>
+					<li>
+				 		<i class="iconfont icon-jietu"></i>
+			      <span>更多..</span>
+					</li>
+					<li id="setting">
+						<i class="iconfont icon-shezhi"></i>
+			      <span>设置</span>
+			    </li>
+				</ul>
+	  		</div>
+	  		<!-- 内容内容展取 -->
+	  		<div id="content">
+					<!-- 二维码 -->
+					<div id="qrcodeCanvas"></div>
+	  		</div>
+	  		<!-- 消息通知 -->
+	  		<div id="msg"></div>
+	  	</div>
+
+	  	<script type="text/javascript" src="lib/jquery.min.js"></script>
+	  	<script type="text/javascript" src="lib/qrcode.jquery.min.js"></script>
+
+  		<script>
+		    var ipc = require('ipc');
+		    var remote = require('remote');
+		    var app = remote.require('app');
+		    var clipboard = remote.require('clipboard');
+		    var Menu = remote.require('menu');
+		    var MenuItem = remote.require('menu-item');
+		    var firstShown = false;
+		    var AutoLaunch = remote.require('auto-launch');
+		    var nwAppLauncher = new AutoLaunch({
+		      name: 'Deskit',
+		      path: '/Applications/Deskit.app',
+		    });
+		    var version = remote.require('./package').version;
+
+		    var menu;
+		    nwAppLauncher.isEnabled(function(enabled) {
+		      // 初次进入时，默认设置开机启动
+		      if (!localStorage.getItem('firstOpened')) {
+		        localStorage.setItem('firstOpened', true);
+		        nwAppLauncher.enable(function() {
+		          initMenu(true);
+		        });
+		      } else {
+		        initMenu();
+		      }
+
+		      function initMenu(forceEnable) {
+		        menu = new Menu();
+		        menu.append(new MenuItem({
+		          label: 'Deskit ' + version,
+		          enabled: false
+		        }));
+		        menu.append(new MenuItem({
+		          type: 'separator'
+		        }));
+		        menu.append(new MenuItem({
+		          label: '开机启动',
+		          type: 'checkbox',
+		          checked: forceEnable || enabled,
+		          click: function(item) {
+		            if (item.checked) {
+		              nwAppLauncher.enable();
+		            } else {
+		              nwAppLauncher.disable();
+		            }
+		          }
+		        }));
+		        menu.append(new MenuItem({
+		          label: '退出应用',
+		          accelerator: 'Command+Q',
+		          click: function() {
+		            app.quit();
+		          }
+		        }));
+		      }
+		    });
+			$('#setting').on('click', function() {
+				menu.popup(remote.getCurrentWindow());
+			});
+
+			var $qrcodeEl = $('#qrcode');
+			$qrcodeEl.on({
+				hover: function() { ipc.send('qrcode'); },
+				click: function() { ipc.send('qrcode'); }
+			});
+
+			var doc = $('document.documentElement');
+
+			doc.on({
+				click: function() {
+			    	if (e.target === document.documentElement) {
+			    		remote.getCurrentWindow().hide();
+			        	$container.style.display = 'none';
+			      	}
+				},
+				dragover: function() {
+	 				e.preventDefault();
+			      	return false;
+				},
+				drop: function() {
+		      		e.preventDefault();
+		      		return false;
+				}
+			});
+
+	    var message = document.getElementById('msg');
+	    var content = document.getElementById('content');
+	    var $container = document.getElementById('container');
+
+	    ipc.on('show', function() {
+	      $container.style.display = 'block';
+	      firstShown = true;
+	    });
+
+	    ipc.on('hide', function() {
+	      $container.style.display = 'none';
+	    });
+
+	    ipc.on('generateQrcode', function(url) {
+	    	var qrcodeEl = $('#qrcodeCanvas');
+	    	qrcodeEl.html("");
+				// 生成二维码
+				qrcodeEl.qrcode({
+					text	: url,
+					render: "canvas",
+					width: 150,
+					height: 150
+				});
+				// 提示
+				$('#msg').html("目标url: " + clipboard.readText());
+			});
+  </script>
+  	</body>
+</html>
